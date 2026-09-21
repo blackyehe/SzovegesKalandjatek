@@ -1,9 +1,5 @@
-from PlayerClass import PlayableClass
-from PlayerCharacter import PlayerCharacter
-
-Fighter = PlayableClass("Fighter", 18, 12, 14, 10, 12, 8)
-Rogue = PlayableClass("Rogue", 8, 18, 10, 12, 12, 14)
-Wizard = PlayableClass("Wizard", 8, 10, 12, 18, 14, 12)
+from WelcomeScreen.PlayerScripts.PlayerClass import PlayableClass
+from WelcomeScreen.PlayerScripts.PlayerCharacter import PlayerCharacter
 
 def CreateCharacterBasedOnClass(characterName,chosenClass:PlayableClass):
     newPlayer = PlayerCharacter(characterName,chosenClass,
