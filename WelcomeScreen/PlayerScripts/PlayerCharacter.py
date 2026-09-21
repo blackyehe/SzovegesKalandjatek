@@ -5,6 +5,7 @@ from WelcomeScreen.VisitablePlacesDatabase import PlacesDatabase
 from WelcomeScreen.VisitablePlacesDatabase.PlacesDatabase import StarterFountain
 
 
+
 class PlayerCharacter:
     def __init__(self,playerName,playerClass:PlayableClass,playerMaxHP,playerCurrentHP,Strength,Dexterity,Constitution,Intelligence,Wisdom,Charisma):
         self.playerName = playerName

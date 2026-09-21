@@ -1,6 +1,7 @@
 ﻿from WelcomeScreen.ItemScripts.EquipableItem import EquipableItem
 from WelcomeScreen.ItemScripts.everyItemEnum import ArmourTypes
 from WelcomeScreen.PlayerScripts.PlayerCharacter import PlayerCharacter
+from everyItemEnum import ItemTypes
 
 class Armor(EquipableItem):
     def __init__(self, statToIncrease, statNumber, itemName, itemType: ItemTypes, armorType:ArmourTypes):
@@ -13,47 +14,54 @@ class Armor(EquipableItem):
 
 
     def OnEquip(self,player:PlayerCharacter):
-        match statToIncrease:
+        match self.statToIncrease:
             case "Strength" | "str":
-                player.Strength += statNumber
+                player.Strength += self.statNumber
 
             case "Dexterity" | "dex":
-                player.Dexterity += statNumber
+                player.Dexterity += self.statNumber
 
             case "Constitution" | "con":
-                player.Constitution += statNumber
+                player.Constitution += self.statNumber
 
             case "Intelligence" | "int":
-                player.intelligence += statNumber
+                player.intelligence += self.statNumber
 
             case "Wisdom" | "wis":
-                player.wisdom += statNumber
+                player.wisdom += self.statNumber
 
             case "Charisma" | "cha":
-                player.charisma += statNumber
+                player.charisma += self.statNumber
 
             case "ArmorClass" | "AC" | "ac":
-                player.CurrentArmorClass += statNumber
+                player.CurrentArmorClass += self.statNumber
+
+        player.NormalInventory.append(player.EquippedInventory[self.armorType])
+        player.EquippedInventory[self.armorType] = self
+        player.NormalInventory.remove(self)
 
     def OnUnequip(self,player:PlayerCharacter):
-        match statToIncrease:
+        match self.statToIncrease:
             case "Strength" | "str":
-                player.Strength -= statNumber
+                player.Strength -= self.statNumber
 
             case "Dexterity" | "dex":
-                player.Dexterity -= statNumber
+                player.Dexterity -= self.statNumber
 
             case "Constitution" | "con":
-                player.Constitution -= statNumber
+                player.Constitution -= self.statNumber
 
             case "Intelligence" | "int":
-                player.intelligence += statNumber
+                player.intelligence += self.statNumber
 
             case "Wisdom" | "wis":
-                player.wisdom -= statNumber
+                player.wisdom -= self.statNumber
 
             case "Charisma" | "cha":
-                player.charisma -= statNumber
+                player.charisma -= self.statNumber
 
             case "ArmorClass" | "AC" | "ac":
-                player.CurrentArmorClass -= statNumber
+                player.CurrentArmorClass -= self.statNumber
+
+        player.NormalInventory.append(player.EquippedInventory[self.armorType])
+        player.EquippedInventory[self.armorType] = None

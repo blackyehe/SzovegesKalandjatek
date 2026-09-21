@@ -1,5 +1,17 @@
+from WelcomeScreen.ItemScripts.everyItemEnum import WeaponTypes, ItemTypes
 from WelcomeScreen.PlayerScripts.PlayerClass import PlayableClass
 from WelcomeScreen.PlayerScripts.PlayerCharacter import PlayerCharacter
+from WelcomeScreen.ItemScripts.WeaponScript import Weapon
+
+Fighter = PlayableClass("Fighter", 18, 12, 14, 10, 12, 8)
+Rogue = PlayableClass("Rogue", 8, 18, 10, 12, 12, 14)
+Wizard = PlayableClass("Wizard", 8, 10, 12, 18, 14, 12)
+
+Shortsword = Weapon("str", 1, "Rusty Shortsword", ItemTypes.Weapon,WeaponTypes.Shortsword)
+Longsword = Weapon("str", 3, "Silver Longsword", ItemTypes.Weapon, WeaponTypes.Longsword)
+Quarterstaff = Weapon("dex", 1, "Common Staff", ItemTypes.Weapon, WeaponTypes.QuarterStaff)
+Wand = Weapon("int", 1, "Basic Magic Wand", ItemTypes.Weapon, WeaponTypes.MagicWand)
+
 
 def CreateCharacterBasedOnClass(characterName,chosenClass:PlayableClass):
     newPlayer = PlayerCharacter(characterName,chosenClass,
@@ -39,7 +51,7 @@ def PrintCharacterSheet(character:PlayerCharacter):
     print("\n")
     print("===========================================================================================================")
     print(f"Character Name: {character.playerName}\n"
-          f"Chosen Class: {character.playerClass.classname} { character.playerCurrentHP} / {character.playerMaxHP}\n"
+          f"Chosen Class: {character.playerClass.className} { character.playerCurrentHP} / {character.playerMaxHP}\n"
           f"Strength: {character.playerClass.strength}\n"
           f"Dexterity: {character.playerClass.dexterity}\n"
           f"Constitution: {character.playerClass.constitution}\n"
