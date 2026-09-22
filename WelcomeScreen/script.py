@@ -1,17 +1,19 @@
-from WelcomeScreen.ItemScripts.everyItemEnum import WeaponTypes, ItemTypes
+from WelcomeScreen.ItemScripts.everyItemEnum import ItemTypes, WeaponTypes, ArmourTypes
 from WelcomeScreen.PlayerScripts.PlayerClass import PlayableClass
 from WelcomeScreen.PlayerScripts.PlayerCharacter import PlayerCharacter
 from WelcomeScreen.ItemScripts.WeaponScript import Weapon
 
-Fighter = PlayableClass("Fighter", 18, 12, 14, 10, 12, 8)
-Rogue = PlayableClass("Rogue", 8, 18, 10, 12, 12, 14)
-Wizard = PlayableClass("Wizard", 8, 10, 12, 18, 14, 12)
+Shortsword = Weapon("str", 1, "Rusty Shortsword", ItemTypes.WEAPON,WeaponTypes.SHORTSWORD)
+Longsword = Weapon("str", 3, "Silver Longsword", ItemTypes.WEAPON, WeaponTypes.LONGSWORD)
+Quarterstaff = Weapon("int", 1, "Common Staff", ItemTypes.WEAPON, WeaponTypes.QUARTERSTAFF)
+Wand = Weapon("int", 2, "Basic Magic Wand", ItemTypes.WEAPON, WeaponTypes.MAGICWAND)
+Dagger = Weapon("dex", 2, "Sharp Dagger", ItemTypes.WEAPON, WeaponTypes.DAGGER)
+Shortbow = Weapon("dex", 1, "Common Shortbow", ItemTypes.WEAPON, WeaponTypes.SHORTBOW)
+Rapier = Weapon("dex", 3, "Ceremonial Rapier", ItemTypes.WEAPON,WeaponTypes.RAPIER)
 
-Shortsword = Weapon("str", 1, "Rusty Shortsword", ItemTypes.Weapon,WeaponTypes.Shortsword)
-Longsword = Weapon("str", 3, "Silver Longsword", ItemTypes.Weapon, WeaponTypes.Longsword)
-Quarterstaff = Weapon("dex", 1, "Common Staff", ItemTypes.Weapon, WeaponTypes.QuarterStaff)
-Wand = Weapon("int", 1, "Basic Magic Wand", ItemTypes.Weapon, WeaponTypes.MagicWand)
-
+Fighter = PlayableClass("Fighter", 18, 12, 14, 10, 12, 8, Shortsword)
+Rogue = PlayableClass("Rogue", 8, 18, 10, 12, 12, 14, Dagger)
+Wizard = PlayableClass("Wizard", 8, 10, 12, 18, 14, 12, Quarterstaff)
 
 def CreateCharacterBasedOnClass(characterName,chosenClass:PlayableClass):
     newPlayer = PlayerCharacter(characterName,chosenClass,
@@ -23,30 +25,34 @@ def CreateCharacterBasedOnClass(characterName,chosenClass:PlayableClass):
                                 chosenClass.intelligence,
                                 chosenClass.wisdom,
                                 chosenClass.charisma)
+    newPlayer.playerClass.starterWeapon.OnEquip(newPlayer)
     return newPlayer
 
 def WelcomeMessage():
-    global playerCharacter
+    global PlayerCharacter
     print("===========================================================================================================")
     charName = input("Add your new character's name: ")
     print(f"Welcome to the game, {charName}!")
     print("===========================================================================================================\n")
     print("===========================================================================================================")
     print(f"Choose a Class for yourself, {charName}: ")
-    print(f"1. Fighter - High Strength and Good Constitution\n2. Rogue - High Dexterity and good Charisma\n3. Wizard - High Intelligence and good Wisdom")
+
+    print(f"1. Fighter - High Strength and Good Constitution\n"
+          f"2. Rogue - High Dexterity and good Charisma\n"
+          f"3. Wizard - High Intelligence and good Wisdom")
+
     classChoice = input("Write 1/2/3 or the class' full name to choose: ")
 
     if classChoice == "1" or classChoice == "Fighter":
-        playerCharacter = CreateCharacterBasedOnClass(charName, Fighter)
+        PlayerCharacter = CreateCharacterBasedOnClass(charName, Fighter)
 
     elif classChoice == "2" or classChoice == "Rogue":
-        playerCharacter = CreateCharacterBasedOnClass(charName, Rogue)
+        PlayerCharacter = CreateCharacterBasedOnClass(charName, Rogue)
 
     elif classChoice == "3" or classChoice == "Wizard":
-        playerCharacter = CreateCharacterBasedOnClass(charName, Wizard)
+        PlayerCharacter = CreateCharacterBasedOnClass(charName, Wizard)
     print("===========================================================================================================")
-    PrintCharacterSheet(playerCharacter)
-
+    PrintCharacterSheet(PlayerCharacter)
 def PrintCharacterSheet(character:PlayerCharacter):
     print("\n")
     print("===========================================================================================================")

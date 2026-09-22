@@ -1,5 +1,5 @@
 ﻿class PlayableClass:
-    def __init__(self, className, Strength, Dexterity, Constitution, Intelligence, Wisdom, Charisma):
+    def __init__(self, className, Strength, Dexterity, Constitution, Intelligence, Wisdom, Charisma, starterWeapon):
         self.className = className
         self.strength = Strength
         self.dexterity = Dexterity
@@ -7,4 +7,4 @@
         self.intelligence = Intelligence
         self.wisdom = Wisdom
         self.charisma = Charisma
-
+        self.starterWeapon = starterWeapon

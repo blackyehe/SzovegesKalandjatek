@@ -1,5 +1,5 @@
 ﻿from abc import ABC, abstractmethod
-from ItemScript import Item
+from WelcomeScreen.ItemScripts.ItemScript import Item
 from WelcomeScreen.PlayerScripts.PlayerCharacter import PlayerCharacter
 
 class EquipableItem(Item, ABC):

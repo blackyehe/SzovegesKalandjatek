@@ -1,21 +1,22 @@
 ﻿from enum import Enum
 
 class ItemTypes(Enum):
-    Armor = 1
-    Weapon = 2
-    Other = 3
+    ARMOR = 1
+    WEAPON = 2
+    OTHER = 3
 
 class WeaponTypes(Enum):
-    Shortsword = 1
-    Dagger = 2
-    Longsword = 3
-    Shortbow = 4
-    Rapier = 5
-    MagicWand = 6
-    QuarterStaff = 7
+    SHORTSWORD = 1
+    DAGGER = 2
+    LONGSWORD = 3
+    SHORTBOW = 4
+    RAPIER = 5
+    MAGICWAND = 6
+    QUARTERSTAFF = 7
 
 class ArmourTypes(Enum):
-    head = 1
-    chest = 2
-    gloves = 3
-    boots = 4
+    HEAD = 1
+    CHEST = 2
+    GLOVES = 3
+    BOOTS = 4
+    MAINHAND = 5

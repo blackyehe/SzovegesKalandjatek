@@ -1,12 +1,12 @@
 ﻿from tkinter import Place
 
-from PlacesClass import Places
+from WelcomeScreen.VisitablePlacesDatabase.PlacesClass import Places
 #---------------------------------------
 StarterFountain = Places("Fountain: ")
 StarterFountain.description = "You begin your journey near the town square's fountain"
 fountainOption1 = "Check out the fountain"
 fountainOption2 = "Go somewhere else"
-StarterFountain.placesToVisitFromHere.append(fountainOption1,fountainOption2)
+
 #----------------------------------------
 AlchemyShop = Places("Alchemy Shop: ")
 AlchemyShop.description = "A small Alchemy shop, while looking around, a humble shopkeeper greets you"
@@ -19,13 +19,12 @@ GuildHall.description = "The Guild Hall, this is where you can find various jobs
 ghOption = "Take a look at the job postings on the main wall"
 ghOption1 = "Leave the Guild Hall"
 #---------------------
-
 TownGate = Places("Town Gate: ")
 TownGate.description = "You can leave the town through this Gate"
 tgOption = ""
 
 #------------------------------
-PlacesList = [Places, AlchemyShop, GuildHall, TownGate]
+PlacesList = [StarterFountain, AlchemyShop, GuildHall, TownGate]
 
 def PrintPlaceOptions():
     for place in PlacesList:
