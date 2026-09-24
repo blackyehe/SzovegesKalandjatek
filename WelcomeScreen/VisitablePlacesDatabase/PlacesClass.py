@@ -4,6 +4,7 @@
         self.description = ""
         self.placesToVisitFromHere = [Places]
         self.whatCanUDoHere = []
+        self.dict = {}
 
 
 

@@ -1,8 +1,8 @@
-from WelcomeScreen.ItemScripts.everyItemEnum import ItemTypes, WeaponTypes, ArmourTypes
+from WelcomeScreen.Enums.everyEnum import ItemTypes, WeaponTypes
 from WelcomeScreen.PlayerScripts.PlayerClass import PlayableClass
 from VisitablePlacesDatabase import PlacesDatabase
-from WelcomeScreen.PlayerScripts.PlayerCharacter import PlayerCharacter
 from WelcomeScreen.ItemScripts.WeaponScript import Weapon
+from WelcomeScreen.PlayerScripts.PlayerCharacter import PlayerCharacter
 
 Shortsword = Weapon("str", 1, "Rusty Shortsword", ItemTypes.WEAPON,WeaponTypes.SHORTSWORD)
 Longsword = Weapon("str", 3, "Silver Longsword", ItemTypes.WEAPON, WeaponTypes.LONGSWORD)
@@ -16,7 +16,7 @@ Rapier = Weapon("dex", 3, "Ceremonial Rapier", ItemTypes.WEAPON,WeaponTypes.RAPI
 Fighter = PlayableClass("Fighter", 18, 12, 14, 10, 12, 8, Shortsword)
 Rogue = PlayableClass("Rogue", 8, 18, 10, 12, 12, 14, Dagger)
 Wizard = PlayableClass("Wizard", 8, 10, 12, 18, 14, 12, Quarterstaff)
-
+#----------------------------------------------------------------------------
 def CreateCharacterBasedOnClass(characterName,chosenClass:PlayableClass):
     newPlayer = PlayerCharacter(characterName,chosenClass,
                                 10 + chosenClass.constitution,
@@ -30,21 +30,29 @@ def CreateCharacterBasedOnClass(characterName,chosenClass:PlayableClass):
     newPlayer.playerClass.starterWeapon.OnEquip(newPlayer)
     return newPlayer
 
+#----------------------------------------------------------------------------
+def GoSomewhere(player:PlayerCharacter):
+    ShowVisitablePlaces(player)
+    visitChoice = input(f"Type the number you wish to visit, or X to go back to the menu: ")
+    print(
+        "===========================================================================================================\n")
+    if visitChoice == "x" or visitChoice == "X":
+        ShowUserMenu(player)
+    else:
+        VisitPlace(player, visitChoice)
+#----------------------------------------------------------------------------
 def ShowUserMenu(player:PlayerCharacter):
     print("===========================================================================================================")
-    print(f"The list of things you can do now: \n1. [GO SOMEWHERE]\n2. [SHOW CHARACTER SHEET]\n3. [OPEN INVENTORY]\n4. [ATTRIBUTES INFORMATION]")
+    print(f"The list of things you can do now: \n"
+          f"1. [GO SOMEWHERE]\n"
+          f"2. [SHOW CHARACTER SHEET]\n"
+          f"3. [OPEN INVENTORY]\n"
+          f"4. [ATTRIBUTES INFORMATION]")
     choice = input(f"Type your command (1/2/3/4): "
                    f"\n===========================================================================================================\n")
     match choice:
         case "1":
-            ShowVisitablePlaces(player)
-            visitChoice = input(f"Type the number you wish to visit, or X to go back to the menu: ")
-            print("===========================================================================================================\n")
-            if visitChoice == "x" or visitChoice == "X":
-                ShowUserMenu(player)
-            else:
-                VisitPlace(player,visitChoice)
-
+            GoSomewhere(player)
         case "2":
             PrintCharacterSheet(player)
             input("Press ENTER to continue")
@@ -55,6 +63,7 @@ def ShowUserMenu(player:PlayerCharacter):
             ShowUserMenu(player)
         case "4":
             pass
+#----------------------------------------------------------------------------
 
 def VisitPlace(player:PlayerCharacter, number):
     print("===========================================================================================================")
@@ -64,17 +73,18 @@ def VisitPlace(player:PlayerCharacter, number):
             newList.append(place)
 
     if len(newList) >= int(number)-1:
-        choice = PlacesDatabase.PrintDoableOptions(newList[int(number)-1])
-
+        player.CurrentPlace = newList[int(number)-1]
+        optionID = PlacesDatabase.PrintDoableOptions(newList[int(number)-1]) #0. Index miatt -1
+        
 
     print("===========================================================================================================")
 
-
+#----------------------------------------------------------------------------
 def ShowVisitablePlaces(player:PlayerCharacter):
     print("===========================================================================================================")
     print(f"From your current place - The {player.CurrentPlace.placeName} - you can go to these locations:\n ")
     PlacesDatabase.PrintPlaceOptions(player)
-
+#----------------------------------------------------------------------------
 def ShowPlayerNormalInventory(player:PlayerCharacter):
     if len(player.NormalInventory) == 0:
         print("[EMPTY]")
@@ -82,6 +92,8 @@ def ShowPlayerNormalInventory(player:PlayerCharacter):
         for item in player.NormalInventory:
             print(f"[{item.itemName}]")
             print("\n")
+
+#----------------------------------------------------------------------------
 def WelcomeMessage():
     global PlayerCharacter
     print("===========================================================================================================")
@@ -107,6 +119,8 @@ def WelcomeMessage():
         PlayerCharacter = CreateCharacterBasedOnClass(charName, Wizard)
     print("===========================================================================================================")
     PrintCharacterSheet(PlayerCharacter)
+#----------------------------------------------------------------------------
+
 def PrintCharacterSheet(character:PlayerCharacter):
     print("\n===========================================================================================================")
     print(f"Character Name: {character.playerName}\n"
@@ -118,6 +132,7 @@ def PrintCharacterSheet(character:PlayerCharacter):
           f"Wisdom: {character.playerClass.wisdom}\n"
           f"Charisma: {character.playerClass.charisma}")
     print("===========================================================================================================\n")
+#----------------------------------------------------------------------------
 
 WelcomeMessage()
 print(f"{PlayerCharacter.CurrentPlace.description}")

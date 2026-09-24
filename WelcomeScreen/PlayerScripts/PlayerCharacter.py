@@ -1,4 +1,4 @@
-﻿from WelcomeScreen.ItemScripts.everyItemEnum import ArmourTypes
+﻿from WelcomeScreen.Enums.everyEnum import ArmourTypes
 from WelcomeScreen.VisitablePlacesDatabase.PlacesClass import Places
 from WelcomeScreen.VisitablePlacesDatabase.PlacesDatabase import StarterFountain
 from typing import Dict

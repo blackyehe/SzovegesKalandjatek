@@ -1,7 +1,7 @@
 ﻿from WelcomeScreen.ItemScripts.EquipableItem import EquipableItem
-from WelcomeScreen.ItemScripts.everyItemEnum import WeaponTypes, ItemTypes
+from WelcomeScreen.Enums.everyEnum import WeaponTypes, ItemTypes
 from WelcomeScreen.PlayerScripts.PlayerCharacter import PlayerCharacter
-from WelcomeScreen.ItemScripts.everyItemEnum import ArmourTypes
+from WelcomeScreen.Enums.everyEnum import ArmourTypes
 
 class Weapon(EquipableItem):
     def __init__(self, statToIncrease, statNumber, itemName, itemType: ItemTypes, weaponType:WeaponTypes):
