@@ -1,8 +1,11 @@
-﻿from WelcomeScreen.VisitablePlacesDatabase.PlacesClass import Places
+﻿from WelcomeScreen.Enums.everyEnum import ArmourTypes, ItemTypes
+from WelcomeScreen.VisitablePlacesDatabase.PlacesClass import Places
 import WelcomeScreen.ItemScripts.WeaponScript
 from random import randint
+import WelcomeScreen.ItemScripts.ArmorScript
+from tabulate import tabulate
 
-
+armor = WelcomeScreen.ItemScripts.ArmorScript
 weapon = WelcomeScreen.ItemScripts.WeaponScript
 #-------------------------
 
@@ -13,15 +16,25 @@ StarterFountain.dict= SFDict = {
     "StarterFountainOption2" : "Go somewhere else",
 }
 StarterFountain.whatCanUDoHere.extend([SFDict["StarterFountainOption1"],SFDict["StarterFountainOption2"]])
+
 #----------------------------------------
+
 AlchemyShop = Places("Alchemy Shop ")
-AlchemyShop.description = "A small Alchemy shop, you can buy potions here"
+AlchemyShop.description = "A fairly big shop called the Mystic Vagrant, alchemical supplies and equipment can be found here for a decent prize"
 AlchemyShop.dict= ASDict = {
     "AlchemyShopOption1" : "Speak with the shopkeeper",
-    "AlchemyShopOption2" : "You can see a chest in the corner, you could attempt to lockpick it without being seen [DC 15 - Dex]",
+    "AlchemyShopOption2" : "You can see a chest in the corner, you could attempt to lockpick it without being seen [DC 22 - Dex]",
     "AlchemyShopOption3" : "Leave the shop"
 }
 AlchemyShop.whatCanUDoHere.extend([ASDict["AlchemyShopOption1"],ASDict["AlchemyShopOption2"],ASDict["AlchemyShopOption3"]])
+
+shopInventory = [
+    armor.WizardHat,armor.Monocle,
+    armor.LeatherChest,armor.WizardRobe,
+    armor.BerserkGlove,armor.WizardGlove,armor.ThiefGlove,
+    armor.LeatherBoots, armor.EvasiveBoots,
+    weapon.Longsword,weapon.Wand,weapon.Dagger,
+]
 #----------------------
 GuildHall = Places("Guild Hall ")
 GuildHall.description = "The Guild Hall, this is where you can find various jobs to do"
@@ -41,13 +54,13 @@ TownGate.Dict = TGDict = {
 TownGate.whatCanUDoHere.extend([TGDict["TownGateOption1"], TGDict["TownGateOption2"]])
 #------------------------------
 PlacesList = [StarterFountain, AlchemyShop, GuildHall, TownGate]
+
 def GoSomewhere(player):
     ShowVisitablePlaces(player)
     visitChoice = input(f"Type the number you wish to visit, or X to go back to the menu: ")
-    print(
-        "===========================================================================================================\n")
+
     if visitChoice == "x" or visitChoice == "X":
-        player.ShowUserMenu(player)
+        player.ShowUserMenu()
     else:
         VisitPlace(player, visitChoice)
 
@@ -63,18 +76,28 @@ def VisitPlace(player, number):
         if place.placeName != player.CurrentPlace.placeName:
             newList.append(place)
 
+    funcDict = {
+        "StarterFountainOption1" : CheckTheFountain,
+        "StarterFountainOption2" : GoSomewhere,
+
+        "AlchemyShopOption1": TalkToTheShopKeeper,
+        "AlchemyShopOption2": LockPickAlchemyShopChest,
+        "AlchemyShopOption3": GoSomewhere
+    }
     if len(newList) >= int(number) - 1:
         player.CurrentPlace = newList[int(number) - 1]
         optionID = PrintDoableOptions(newList[int(number) - 1])  # 0. Index miatt -1
-
+        funcDict[optionID](player)
+        print(player.currentPlace.placeName)
     print("===========================================================================================================")
 
 def PrintPlaceOptions(player):
-    i = 0
-    for place in PlacesList:
-        if player.CurrentPlace.placeName != place.placeName:
-            print(f"{i}.{place.placeName}: {place.description}\n")
-        i += 1
+    newList = []
+    for i in range(len(PlacesList)):
+        if player.CurrentPlace.placeName != PlacesList[i].placeName:
+            newList.append(PlacesList[i])
+    for i in range (len(newList)):
+            print(f"{i+1}.{newList[i].placeName}: {newList[i].description}\n")
     print("===========================================================================================================")
 
 def SearchDictKey(value, dictionary):
@@ -91,11 +114,32 @@ def PrintDoableOptions(place:Places):
     choice = input("What will you do? (1/2/3..): ")
     keyNeeded = SearchDictKey(place.whatCanUDoHere[int(choice)-1],place.dict)
     return keyNeeded
-#------------------------------------------ Opció szótár metódusokkal valuenak innentől
+#------------------------------------------ Opció Dictionary method value-val innentől, meg helper methodok.
+def GetType(item):
+    if item.itemType is ItemTypes.ARMOR:
+        return item.armorType.value
+    elif item.itemType is ItemTypes.WEAPON:
+        return item.weaponType.value
+    else:
+        return "Other"
+def GetShopItems():
+    global shopInventory
+    return [[item.itemName,GetType(item), f"+{item.statNumber} to {item.statToIncrease}",item.itemPrice] for item in shopInventory]
+def OpenShop(player):
+    global shopInventory
+    print(tabulate(
+            GetShopItems(),
+            headers=['Item Name','Item Slot Type','Description','Price'],
+            tablefmt="fancy_grid",
+            colglobalalign ='center',
+        ))
+
 def DiceRoll(numberToBeat, player, dcType):
     rnd = randint(1, 10)
     playerDc = 0
+    global success
     success = False
+
     match dcType:
         case "dex" | "dexterity" | "DEX":
             playerDc = player.Dexterity
@@ -112,82 +156,147 @@ def DiceRoll(numberToBeat, player, dcType):
 
     if playerDc + rnd > numberToBeat:
         success = True
-        print(f"SUCCESS: your modifier:{playerDc} + random number:{rnd} beats {numberToBeat}")
+        print(f"\nSUCCESS: your modifier:{playerDc} + random number:{rnd} beats {numberToBeat}")
     else:
         success = False
-        print(f"FAILURE: your modifier:{playerDc} + random number:{rnd} beats {numberToBeat} ")
+        print(f"\nFAILURE: your modifier:{playerDc} + random number:{rnd} beats {numberToBeat} ")
 
     return success
 
+checkedFirst = False
+successFirst = False
+checkedSecond = False
 def CheckTheFountain(player):
-    checkedFirst = False
-    successFirst = False
-    checkedSecond = False
+    global checkedFirst, successFirst, checkedSecond
 
-    print(f"While checking out the fountain, you seem to notice something shimmering at the bottom")
-    print(f"1. Try to ascertain what is exactly at the bottom [DC 15 - Wisdom]\n"
-          f"2. Try to carefully reach for the bottom.[DC 7 Dexterity]\n"
-          f"3. Leave the fountain behind.")
-    choice = input("What will you do? (1/2/3..): ")
+    while True:
+        print("\n===========================================================================================================")
+        print(f"While checking out the fountain, you seem to notice something shimmering at the bottom\n")
+        print(f"1. Try to ascertain what is exactly at the bottom [DC 15 - Wisdom]\n2. Try to carefully reach for the bottom [DC 14 Dexterity]\n3. Leave the fountain behind.")
+        print("===========================================================================================================")
 
-    match choice:
-        case "1":
-            if DiceRoll(15,player,"wis") and checkedFirst is False:
-                print(f"Your eye catches a surprisingly expensive looking Dagger, and a hefty amount of gold coins")
+        choice = input("What will you do? (1/2/3): ")
+
+        match choice:
+            case "1":
+                if checkedFirst:
+                    print("You have already checked out this option\n")
+                    input("\nPress ENTER to continue...")
+                    continue
+
+                successFirst = DiceRoll(15, player, "wis")
                 checkedFirst = True
-                successFirst = True
-                input("Press ENTER to continue...")
-                CheckTheFountain(player)
 
-            elif checkedFirst:
-                print(f"You have already checked out this option")
-                CheckTheFountain(player)
+                if successFirst:
+                    print("Your eye catches a surprisingly expensive looking Dagger, and a hefty amount of gold coins")
 
-            elif DiceRoll(15,player,"wis") is False and checkedFirst is False:
-                print(f"For some reason you can't make out what's exactly at the bottom...")
-                checkedFirst = True
-                successFirst = False
-                input("Press ENTER to continue...")
-                CheckTheFountain(player)
-
-        case "2":
-            print(f"You try to reach for the bottom of the fountain")
-            if successFirst and checkedSecond is False:
-                if DiceRoll(4,player,"dex"):
-                    print(f"You have found a {weapon.Dagger.itemName}. Wicked")
-                    player.AddItemToInventory(weapon.Dagger)
-                    checkedSecond = True
-                    input("Press ENTER to continue...")
-                    CheckTheFountain(player)
                 else:
-                    print(f"While trying to reach for the bottom, you slipped and hit your head on the wall (You lost 5 HP)")
-                    player.TakeDamage(5)
-                    print(f"You're soaking wet, but, you reach down and find a {weapon.Dagger.itemName}.")
-                    player.AddItemToInventory(weapon.Dagger)
-                    checkedSecond = True
-                    input("Press ENTER to continue...")
-                    CheckTheFountain(player)
+                    print("For some reason you can't make out what's exactly at the bottom...")
+                input("Press ENTER to continue...")
 
-            elif not successFirst and checkedSecond is False:
-                if DiceRoll(7,player,"dex"):
-                    print(f"You have found a {weapon.Dagger.itemName}. Wicked")
-                    player.AddItemToInventory(weapon.Dagger)
-                    checkedSecond = True
+            case "2":
+                print("\nYou try to reach for the bottom of the fountain")
+                if checkedSecond:
+                    print("You have already checked out this option\n")
                     input("Press ENTER to continue...")
-                    CheckTheFountain(player)
+                    continue
+
+                if successFirst:
+                    success = DiceRoll(10, player, "dex")
                 else:
-                    print(f"While trying to reach for the bottom, you slipped and hit your head on the wall (You lost 5 HP)")
+                    success = DiceRoll(14, player, "dex")
+
+                if success:
+                    print(f"You have found a {weapon.Dagger.itemName}. Wicked.")
+                else:
+                    print(
+                        "While trying to reach for the bottom, you slipped "
+                        "and hit your head on the wall."
+                    )
                     player.TakeDamage(5)
-                    print(f"You're soaking wet, but, you reach down and find a {weapon.Dagger.itemName}.")
-                    player.AddItemToInventory(weapon.Dagger)
-                    checkedSecond = True
+                    print(
+                        f"You're soaking wet, but, you reach down and "
+                        f"find a {weapon.Dagger.itemName}."
+                    )
+
+                player.AddItemToInventory(weapon.Dagger)
+                checkedSecond = True
+
+                input("Press ENTER to continue...")
+
+            case "3":
+                GoSomewhere(player)
+                return
+
+def TalkToTheShopKeeper(player):
+    while True:
+        print("\n===========================================================================================================")
+        print(f"The Mystic Vagrant welcomes you humbly, what can I do for you?\n")
+        print(f"1. Browse his items - (Open his shop)\n2. Exit the shop and go somewhere else")
+        print("===========================================================================================================")
+
+        choice = input("Choose between the options 1/2/3..: ")
+
+        match choice:
+            case "1":
+                OpenShop(player)
+            case "2":
+                GoSomewhere(player)
+
+asCheckedFirst = False
+asSuccessFirst = False
+asCheckedSecond = False
+asKickedOutFirst = False
+def LockPickAlchemyShopChest(player):
+    global asCheckedFirst, asSuccessFirst, asCheckedSecond, asKickedOut #as = Alchemy Shop
+
+    while True:
+        print("\n===========================================================================================================")
+        print(f"The heavy chest in the corner seems filled to the brim, but is locked with a rusty old lock\n")
+        print(f"1. Inspect the rusty old lock [DC 21 Wis]\n2. Try to pick the lock without the shopkeeper catching you [DC 22 Dex]\n3. Leave the chest")
+        print("===========================================================================================================")
+
+        choice = input("Choose between the options 1/2/3..: ")
+        match choice:
+            case "1":
+                if asCheckedFirst:
+                    print("You have already checked out this option\n")
+                    input("\nPress ENTER to continue...")
+                    continue
+
+                asSuccessFirst = DiceRoll(21, player, "wis")
+                asCheckedFirst = True
+
+                if successFirst:
+                    print("The lock seems really rusty, even a little force would break it")
+
+                else:
+                    print("Aside from the lock being really rusty, you can't find anything interesting about it")
+                input("Press ENTER to continue...")
+
+            case "2":
+                if asCheckedSecond:
+                    print("You have already checked out this option\n")
+                    input("\nPress ENTER to continue...")
+                    continue
+
+                if asSuccessFirst:
+                    asSuccessSecond = DiceRoll(19, player, "dex")
+                else:
+                    asSuccessSecond = DiceRoll(22, player, "dex")
+
+                if asSuccessSecond:
+                    print(f"You managed to open the chest without anyone catching you, the chest contained a sack of gold and a {armor.LeatherChest.itemName}. Nice. ")
+                    player.ManageGold(250, True)
+                    player.AddItemToInventory(armor.LeatherChest)
+                    asCheckedSecond = True
+                else:
+                    print(f"It seems you weren't quick enough, the shopkeeper caught you, beat you up and kicked you out, it seems you're forbidden from entering the shop ever again.")
+                    asCheckedSecond = True
+                    asKickedOut = True
+                    player.TakeDamage(5)
                     input("Press ENTER to continue...")
-                    CheckTheFountain(player)
-            elif checkedSecond:
-                print(f"You have already checked out this option")
-                CheckTheFountain(player)
+                    GoSomewhere(player)
 
-        case "3":
-            GoSomewhere(player)
-    pass
-
+            case "3":
+                TalkToTheShopKeeper(player)

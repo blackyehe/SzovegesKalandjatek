@@ -3,11 +3,12 @@ from WelcomeScreen.Enums.everyEnum import WeaponTypes, ItemTypes
 from WelcomeScreen.Enums.everyEnum import ArmourTypes
 
 class Weapon(EquipableItem):
-    def __init__(self, statToIncrease, statNumber, itemName, itemType: ItemTypes, weaponType:WeaponTypes):
-        super().__init__(itemName, itemType)
+    def __init__(self, statToIncrease, statNumber, itemName, itemType: ItemTypes, weaponType:WeaponTypes, itemPrice):
+        super().__init__(itemName, itemType,itemPrice)
         self.statToIncrease = statToIncrease
         self.statNumber = statNumber
         self.weaponType = weaponType
+        self.itemPrice = itemPrice
 
     def OnEquip(self,player):
         match self.statToIncrease:
@@ -21,13 +22,13 @@ class Weapon(EquipableItem):
                 player.Constitution += self.statNumber
 
             case "Intelligence" | "int":
-                player.intelligence += self.statNumber
+                player.Intelligence += self.statNumber
 
             case "Wisdom" | "wis":
-                player.wisdom += self.statNumber
+                player.Wisdom += self.statNumber
 
             case "Charisma" | "cha":
-                player.charisma += self.statNumber
+                player.Charisma += self.statNumber
 
         if player.EquippedInventory[ArmourTypes.MAINHAND] is None:
             player.EquippedInventory[ArmourTypes.MAINHAND] = self
@@ -65,10 +66,10 @@ class Weapon(EquipableItem):
         player.EquippedInventory[ArmourTypes.MAINHAND] = None
 
 
-Shortsword = Weapon("str", 1, "Rusty Shortsword", ItemTypes.WEAPON,WeaponTypes.SHORTSWORD)
-Longsword = Weapon("str", 3, "Silver Longsword", ItemTypes.WEAPON, WeaponTypes.LONGSWORD)
-Quarterstaff = Weapon("int", 1, "Common Staff", ItemTypes.WEAPON, WeaponTypes.QUARTERSTAFF)
-Wand = Weapon("int", 2, "Basic Magic Wand", ItemTypes.WEAPON, WeaponTypes.MAGICWAND)
-Dagger = Weapon("dex", 2, "Sharp Dagger", ItemTypes.WEAPON, WeaponTypes.DAGGER)
-Shortbow = Weapon("dex", 1, "Common Shortbow", ItemTypes.WEAPON, WeaponTypes.SHORTBOW)
-Rapier = Weapon("dex", 3, "Ceremonial Rapier", ItemTypes.WEAPON,WeaponTypes.RAPIER)
+Shortsword = Weapon("str", 1, "Rusty Shortsword", ItemTypes.WEAPON,WeaponTypes.SHORTSWORD,100)
+Longsword = Weapon("str", 3, "Silver Longsword", ItemTypes.WEAPON, WeaponTypes.LONGSWORD,300)
+Quarterstaff = Weapon("int", 1, "Common Staff", ItemTypes.WEAPON, WeaponTypes.QUARTERSTAFF,100)
+Wand = Weapon("int", 2, "Basic Magic Wand", ItemTypes.WEAPON, WeaponTypes.MAGICWAND,200)
+Dagger = Weapon("dex", 2, "Sharp Dagger", ItemTypes.WEAPON, WeaponTypes.DAGGER,200)
+Shortbow = Weapon("dex", 1, "Common Shortbow", ItemTypes.WEAPON, WeaponTypes.SHORTBOW,100)
+Rapier = Weapon("dex", 3, "Ceremonial Rapier", ItemTypes.WEAPON,WeaponTypes.RAPIER,300)

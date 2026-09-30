@@ -1,16 +1,14 @@
-from WelcomeScreen.PlayerScripts.PlayerClass import PlayableClass
-from VisitablePlacesDatabase import PlacesDatabase
-from WelcomeScreen.ItemScripts.WeaponScript import Weapon
-import WelcomeScreen.ItemScripts.WeaponScript
-from WelcomeScreen.PlayerScripts.PlayerCharacter import PlayerCharacter
 import WelcomeScreen.PlayerScripts.PlayerCharacter
+from WelcomeScreen.ItemScripts.WeaponScript import Weapon
+from WelcomeScreen.PlayerScripts.PlayerCharacter import PlayerCharacter
+from WelcomeScreen.PlayerScripts.PlayerClass import PlayableClass
 
 WeaponScript = WelcomeScreen.ItemScripts.WeaponScript
-PlayerScript = WelcomeScreen.PlayerScripts.PlayerCharacter
+PlayerScript2 = WelcomeScreen.PlayerScripts.PlayerCharacter
 #----------------------------------------------------------------
 
 Fighter = PlayableClass("Fighter", 18, 12, 14, 10, 12, 8, WeaponScript.Shortsword)
-Rogue = PlayableClass("Rogue", 8, 18, 10, 12, 12, 14, WeaponScript.Dagger)
+Rogue = PlayableClass("Rogue", 8, 18, 10, 12, 12, 14, WeaponScript.Shortbow)
 Wizard = PlayableClass("Wizard", 8, 10, 12, 18, 14, 12, WeaponScript.Quarterstaff)
 #----------------------------------------------------------------------------
 def WelcomeMessage():
@@ -29,18 +27,17 @@ def WelcomeMessage():
     classChoice = input("Write 1/2/3 or the class' full name to choose: ")
 
     if classChoice == "1" or classChoice == "Fighter":
-        PlayerCharacter = PlayerScript.CreateCharacterBasedOnClass(charName, Fighter)
-
+        PlayerCharacter = PlayerScript2.CreateCharacterBasedOnClass(charName, Fighter)
     elif classChoice == "2" or classChoice == "Rogue":
-        PlayerCharacter = PlayerScript.CreateCharacterBasedOnClass(charName, Rogue)
+        PlayerCharacter = PlayerScript2.CreateCharacterBasedOnClass(charName, Rogue)
 
     elif classChoice == "3" or classChoice == "Wizard":
-        PlayerCharacter = PlayerScript.CreateCharacterBasedOnClass(charName, Wizard)
+        PlayerCharacter = PlayerScript2.CreateCharacterBasedOnClass(charName, Wizard)
     print("===========================================================================================================")
-    PlayerScript.PrintCharacterSheet(PlayerCharacter)
+    PlayerCharacter.PrintCharacterSheet()
 #----------------------------------------------------------------------------
 
 WelcomeMessage()
 print(f"{PlayerCharacter.CurrentPlace.description}")
-PlayerScript.ShowUserMenu(PlayerCharacter)
+PlayerCharacter.ShowUserMenu()
 
