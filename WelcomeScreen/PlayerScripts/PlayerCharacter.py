@@ -27,6 +27,7 @@ class PlayerCharacter:
         self.EquippedInventory = {ArmourTypes.HEAD : None, ArmourTypes.CHEST : None, ArmourTypes.GLOVES : None, ArmourTypes.BOOTS : None, ArmourTypes.MAINHAND : None}
         self.NormalInventory = []
         self.Gold = 500
+        self.ActiveQuests = []
 
     def TakeDamage(self, dmgNumber):
         self.playerCurrentHP -= dmgNumber
@@ -63,13 +64,9 @@ class PlayerCharacter:
         if len(self.NormalInventory) == 0:
             print("\nItems Currently in your Inventory:\n[EMPTY]")
         else:
-            for item in self.NormalInventory:
-                i = 1
+            for i,item in enumerate(self.NormalInventory,1):
                 item.itemIndex = i
-                print(f"{item.itemIndex}. [{item.itemName}]")
-                i += 1
-                print("\n")
-
+                print(f"{item.itemIndex}. [{item.itemName}] [+{item.statNumber} to {item.statToIncrease}]")
     def PrintCharacterSheet(self):
             print(
                 "\n===========================================================================================================")

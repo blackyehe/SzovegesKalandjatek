@@ -4,7 +4,10 @@ import WelcomeScreen.ItemScripts.WeaponScript
 from random import randint
 import WelcomeScreen.ItemScripts.ArmorScript
 from tabulate import tabulate
+import WelcomeScreen.EnemiesAndQuests.Quests
+import introcs
 
+quest = WelcomeScreen.EnemiesAndQuests.Quests
 armor = WelcomeScreen.ItemScripts.ArmorScript
 weapon = WelcomeScreen.ItemScripts.WeaponScript
 #-------------------------
@@ -53,6 +56,8 @@ TownGate.Dict = TGDict = {
 }
 TownGate.whatCanUDoHere.extend([TGDict["TownGateOption1"], TGDict["TownGateOption2"]])
 #------------------------------
+
+#------------------------------
 PlacesList = [StarterFountain, AlchemyShop, GuildHall, TownGate]
 
 def GoSomewhere(player):
@@ -82,7 +87,12 @@ def VisitPlace(player, number):
 
         "AlchemyShopOption1": TalkToTheShopKeeper,
         "AlchemyShopOption2": LockPickAlchemyShopChest,
-        "AlchemyShopOption3": GoSomewhere
+        "AlchemyShopOption3": GoSomewhere,
+
+        "GuildHallOption1" : JobPostings,
+        "GuildHallOption2" : GoSomewhere,
+
+        "TownGateOption2" : GoSomewhere,
     }
     if len(newList) >= int(number) - 1:
         player.CurrentPlace = newList[int(number) - 1]
@@ -100,11 +110,6 @@ def PrintPlaceOptions(player):
             print(f"{i+1}.{newList[i].placeName}: {newList[i].description}\n")
     print("===========================================================================================================")
 
-def SearchDictKey(value, dictionary):
-    for key in dictionary.keys():
-        if dictionary[key] == value:
-            return key
-    return None
 
 def PrintDoableOptions(place:Places):
     i = 1
@@ -115,6 +120,12 @@ def PrintDoableOptions(place:Places):
     keyNeeded = SearchDictKey(place.whatCanUDoHere[int(choice)-1],place.dict)
     return keyNeeded
 #------------------------------------------ Opció Dictionary method value-val innentől, meg helper methodok.
+def SearchDictKey(value, dictionary):
+    for key in dictionary.keys():
+        if dictionary[key] == value:
+            return key
+    return None
+
 def GetType(item):
     if item.itemType is ItemTypes.ARMOR:
         return item.armorType.value
@@ -124,15 +135,37 @@ def GetType(item):
         return "Other"
 def GetShopItems():
     global shopInventory
-    return [[item.itemName,GetType(item), f"+{item.statNumber} to {item.statToIncrease}",item.itemPrice] for item in shopInventory]
+    return [[i,item.itemName,GetType(item), f"+{item.statNumber} to {item.statToIncrease}",item.itemPrice] for i,item in enumerate(shopInventory,1)]
 def OpenShop(player):
     global shopInventory
     print(tabulate(
             GetShopItems(),
-            headers=['Item Name','Item Slot Type','Description','Price'],
+            headers=['#','Item Name','Item Slot Type','Description','Price'],
             tablefmt="fancy_grid",
             colglobalalign ='center',
         ))
+    print(f"Your current gold: {player.Gold}")
+    choice = input(f"Type the number of the item you wish to buy, or X to exit the shopping menu: ")
+    if choice.lower() == "x":
+        TalkToTheShopKeeper(player)
+    item = shopInventory[int(choice)-1]
+
+    if player.Gold >= item.itemPrice:
+        confirm = input(f"Would you like to buy {item.itemName} for {item.itemPrice}? [Y/N]: ")
+
+        if confirm.lower() == "y":
+            player.Gold -= item.itemPrice
+            shopInventory.pop(int(choice)-1)
+            player.AddItemToInventory(item)
+            input("Press Enter to continue...")
+            OpenShop(player)
+
+        elif confirm.lower() == "n":
+            OpenShop(player)
+    else:
+        print("You lack the funds to buy this item. Yikes.")
+        input("Press Enter to continue...")
+        OpenShop(player)
 
 def DiceRoll(numberToBeat, player, dcType):
     rnd = randint(1, 10)
@@ -232,7 +265,7 @@ def TalkToTheShopKeeper(player):
     while True:
         print("\n===========================================================================================================")
         print(f"The Mystic Vagrant welcomes you humbly, what can I do for you?\n")
-        print(f"1. Browse his items - (Open his shop)\n2. Exit the shop and go somewhere else")
+        print(f"1. Browse his items - (Open his shop)\n2. Exit the shop and go somewhere else\n3. Check out the chest")
         print("===========================================================================================================")
 
         choice = input("Choose between the options 1/2/3..: ")
@@ -242,6 +275,8 @@ def TalkToTheShopKeeper(player):
                 OpenShop(player)
             case "2":
                 GoSomewhere(player)
+            case "3":
+                LockPickAlchemyShopChest(player)
 
 asCheckedFirst = False
 asSuccessFirst = False
@@ -290,6 +325,7 @@ def LockPickAlchemyShopChest(player):
                     player.ManageGold(250, True)
                     player.AddItemToInventory(armor.LeatherChest)
                     asCheckedSecond = True
+                    input("Press ENTER to continue...")
                 else:
                     print(f"It seems you weren't quick enough, the shopkeeper caught you, beat you up and kicked you out, it seems you're forbidden from entering the shop ever again.")
                     asCheckedSecond = True
@@ -300,3 +336,101 @@ def LockPickAlchemyShopChest(player):
 
             case "3":
                 TalkToTheShopKeeper(player)
+
+def JobPostings(player):
+    while True:
+        print("\n===========================================================================================================")
+        print(f"It seems the job board is pretty empty right now, only one quest is available.\n")
+        print(f"Rumors say that the surrounding dungeons are infested with goblin scum.\n "
+              f"Adventurers brave enough to venture into the dungeons and slay these foul creatures will receive a 500 Gold reward.\n"
+              f"[QUEST REWARD: 500 GOLD]\n\n")
+        choice = input("Type Y/N to accept the quest.")
+        if choice.lower() == "y":
+            print(f"You have accepted the quest [{quest.GoblinHunt.QuestTitle}]")
+            player.ActiveQuests.append(quest.GoblinHunt)
+            input("Press ENTER to continue...")
+            GoSomewhere(player)
+
+        elif choice.lower() == "n":
+            print(f"You leave the job posting board")
+            input("Press ENTER to continue...")
+            GoSomewhere(player)
+
+def ShowDungeonGrid(currentPos, alreadyVisited, roomDict, everyRoom):
+    roomsToPrint = ["[ ]", "[ ]", "[ ]", "[ ]", "[ ]", "[ ]", "[ ]", "[ ]", "[ ]", ]
+    for i in range(len(alreadyVisited)):
+        if len(alreadyVisited) > 0:
+            roomIndex = SearchDictKey(alreadyVisited[i], roomDict)
+            roomsToPrint[int(roomIndex)] = "[X]"
+
+    for i in range(9):
+        if currentPos == roomDict[everyRoom[i]]:
+            roomsToPrint[i] = "[O]"
+
+    for i in range(len(roomsToPrint)):
+        if i == 3 or i == 6:
+            print(f"\n{roomsToPrint[i]}", end=' ')
+        else:
+            print(f"{roomsToPrint[i]}", end=' ')
+
+def AvailableDirections(currentPos, roomDict, everyRoom):
+    DirDict = {
+        "North": False,
+        "South": False,
+        "West": False,
+        "East": False,
+    }
+
+    northPos = introcs.Vector2(currentPos.x, currentPos.y - 1)
+    southPos = introcs.Vector2(currentPos.x, currentPos.y + 1)
+    westPos = introcs.Vector2(currentPos.x - 1, currentPos.y)
+    eastPos = introcs.Vector2(currentPos.x + 1, currentPos.y)
+
+    for i in range(len(everyRoom)):
+
+        if roomDict[everyRoom[i]].x == northPos.x and roomDict[everyRoom[i]].y == northPos.y:
+            DirDict["North"] = True
+
+        elif roomDict[everyRoom[i]].x == southPos.x and roomDict[everyRoom[i]].y == southPos.y:
+            DirDict["South"] = True
+
+        elif roomDict[everyRoom[i]].x == westPos.x and roomDict[everyRoom[i]].y == westPos.y:
+            DirDict["West"] = True
+
+        elif roomDict[everyRoom[i]].x == eastPos.x and roomDict[everyRoom[i]].y == eastPos.y:
+            DirDict["East"] = True
+
+    availableList = []
+    for i in DirDict.keys():
+        if DirDict[i]:
+            availableList.append(i)
+
+    for i, dir in enumerate(availableList, 1):
+        print(f"{i}. {dir}")
+
+    input(f"Type the number of the direction you wish to go forward: ")
+
+def EmbarkOutside(player):
+    dungeonDict = {
+        "0": introcs.Vector2(x=-1, y=-1),
+        "1": introcs.Vector2(x=0, y=-1),
+        "2": introcs.Vector2(x=-1, y=1),
+        "3": introcs.Vector2(x=-1, y=0),
+        "4": introcs.Vector2(x=0, y=0),
+        "5": introcs.Vector2(x=1, y=0),
+        "6": introcs.Vector2(x=-1, y=1),
+        "7": introcs.Vector2(x=0, y=1),
+        "8": introcs.Vector2(x=1, y=1),
+    }
+
+    rooms = ["0", "1", "2", "3", "4", "5", "6", "7", "8"]
+    currentPos = dungeonDict["0"]
+    alreadyVisited = []
+    print("The dungeon is infested with goblins, you can see the blood trail leading into the massive cave structure.")
+    while True:
+        ShowDungeonGrid(currentPos,alreadyVisited,dungeonDict,rooms)
+        
+
+
+        pass
+
