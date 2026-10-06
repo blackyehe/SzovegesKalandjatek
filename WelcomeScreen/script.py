@@ -2,14 +2,14 @@ import WelcomeScreen.PlayerScripts.PlayerCharacter
 from WelcomeScreen.ItemScripts.WeaponScript import Weapon
 from WelcomeScreen.PlayerScripts.PlayerCharacter import PlayerCharacter
 from WelcomeScreen.PlayerScripts.PlayerClass import PlayableClass
+import WelcomeScreen.PlayerScripts.Skills.PlayerSkills as Skills
 
 WeaponScript = WelcomeScreen.ItemScripts.WeaponScript
 PlayerScript2 = WelcomeScreen.PlayerScripts.PlayerCharacter
 #----------------------------------------------------------------
-
-Fighter = PlayableClass("Fighter", 18, 12, 14, 10, 12, 8, WeaponScript.Shortsword)
-Rogue = PlayableClass("Rogue", 8, 18, 10, 12, 12, 14, WeaponScript.Shortbow)
-Wizard = PlayableClass("Wizard", 8, 10, 12, 18, 14, 12, WeaponScript.Quarterstaff)
+Fighter = PlayableClass("Fighter", 18, 12, 14, 10, 12, 8, WeaponScript.Shortsword,[Skills.MenacingStrike,Skills.ArmourUpgrade])
+Rogue = PlayableClass("Rogue", 8, 18, 10, 12, 12, 14, WeaponScript.Shortbow,[Skills.Assassinate,Skills.ElusiveShadow])
+Wizard = PlayableClass("Wizard", 8, 10, 12, 18, 14, 12, WeaponScript.Quarterstaff,[Skills.Scorch,Skills.MageArmor])
 #----------------------------------------------------------------------------
 def WelcomeMessage():
     global PlayerCharacter

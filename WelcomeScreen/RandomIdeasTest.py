@@ -101,4 +101,5 @@ def AvailableDirections(currentPos, roomDict, everyRoom):
 
     input(f"Type the number of the direction you wish to go forward: ")
 
+EmbarkOutside()
 AvailableDirections(currentPos,dungeonDict,rooms,)

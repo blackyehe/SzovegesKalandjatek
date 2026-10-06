@@ -33,6 +33,9 @@ class PlayerCharacter:
         self.playerCurrentHP -= dmgNumber
         print(f"You took [{dmgNumber}] damage. Current HP: {self.playerCurrentHP} ")
 
+    def ReturnMainHand(self):
+        return self.EquippedInventory[ArmourTypes.MAINHAND]
+
     def AddItemToInventory(self, item):
         self.NormalInventory.append(item)
         print(f"[{item.itemName}] added to the Inventory")

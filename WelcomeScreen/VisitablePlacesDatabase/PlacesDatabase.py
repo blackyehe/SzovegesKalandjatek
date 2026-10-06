@@ -6,7 +6,11 @@ import WelcomeScreen.ItemScripts.ArmorScript
 from tabulate import tabulate
 import WelcomeScreen.EnemiesAndQuests.Quests
 import introcs
+import WelcomeScreen.DiceRoll
+import WelcomeScreen.VisitablePlacesDatabase.Dungeon
 
+dungeon = WelcomeScreen.VisitablePlacesDatabase.Dungeon
+diceRoll = WelcomeScreen.DiceRoll
 quest = WelcomeScreen.EnemiesAndQuests.Quests
 armor = WelcomeScreen.ItemScripts.ArmorScript
 weapon = WelcomeScreen.ItemScripts.WeaponScript
@@ -49,7 +53,7 @@ GuildHall.whatCanUDoHere.extend([GHDict["GuildHallOption1"],GHDict["GuildHallOpt
 #---------------------
 TownGate = Places("Town Gate ")
 TownGate.description = "You can leave the town through this Gate"
-TownGate.Dict = TGDict = {
+TownGate.dict = TGDict = {
     "TownGateOption1" : "Embark on a journey",
     "TownGateOption2" : "Turn back from the Town Gate",
 
@@ -92,6 +96,7 @@ def VisitPlace(player, number):
         "GuildHallOption1" : JobPostings,
         "GuildHallOption2" : GoSomewhere,
 
+        "TownGateOption1" : dungeon.EmbarkOutside,
         "TownGateOption2" : GoSomewhere,
     }
     if len(newList) >= int(number) - 1:
@@ -167,35 +172,6 @@ def OpenShop(player):
         input("Press Enter to continue...")
         OpenShop(player)
 
-def DiceRoll(numberToBeat, player, dcType):
-    rnd = randint(1, 10)
-    playerDc = 0
-    global success
-    success = False
-
-    match dcType:
-        case "dex" | "dexterity" | "DEX":
-            playerDc = player.Dexterity
-        case "str" | "strength" | "STR":
-            playerDc = player.Strength
-        case "wis" | "wisdom" | "WIS":
-            playerDc = player.Wisdom
-        case "int" | "intelligence" | "INT":
-            playerDc = player.Intelligence
-        case "cha" | "charisma" | "CHA":
-            playerDc = player.Charisma
-        case "con" | "constitution" | "CON":
-            playerDc = player.Constitution
-
-    if playerDc + rnd > numberToBeat:
-        success = True
-        print(f"\nSUCCESS: your modifier:{playerDc} + random number:{rnd} beats {numberToBeat}")
-    else:
-        success = False
-        print(f"\nFAILURE: your modifier:{playerDc} + random number:{rnd} beats {numberToBeat} ")
-
-    return success
-
 checkedFirst = False
 successFirst = False
 checkedSecond = False
@@ -217,7 +193,7 @@ def CheckTheFountain(player):
                     input("\nPress ENTER to continue...")
                     continue
 
-                successFirst = DiceRoll(15, player, "wis")
+                successFirst = diceRoll.DiceRoll(15, player, "wis")
                 checkedFirst = True
 
                 if successFirst:
@@ -235,9 +211,9 @@ def CheckTheFountain(player):
                     continue
 
                 if successFirst:
-                    success = DiceRoll(10, player, "dex")
+                    success = diceRoll.DiceRoll(10, player, "dex")
                 else:
-                    success = DiceRoll(14, player, "dex")
+                    success = diceRoll.DiceRoll(14, player, "dex")
 
                 if success:
                     print(f"You have found a {weapon.Dagger.itemName}. Wicked.")
@@ -299,10 +275,10 @@ def LockPickAlchemyShopChest(player):
                     input("\nPress ENTER to continue...")
                     continue
 
-                asSuccessFirst = DiceRoll(21, player, "wis")
+                asSuccessFirst = diceRoll.DiceRoll(21, player, "wis")
                 asCheckedFirst = True
 
-                if successFirst:
+                if asSuccessFirst:
                     print("The lock seems really rusty, even a little force would break it")
 
                 else:
@@ -316,9 +292,9 @@ def LockPickAlchemyShopChest(player):
                     continue
 
                 if asSuccessFirst:
-                    asSuccessSecond = DiceRoll(19, player, "dex")
+                    asSuccessSecond = diceRoll.DiceRoll(19, player, "dex")
                 else:
-                    asSuccessSecond = DiceRoll(22, player, "dex")
+                    asSuccessSecond = diceRoll.DiceRoll(22, player, "dex")
 
                 if asSuccessSecond:
                     print(f"You managed to open the chest without anyone catching you, the chest contained a sack of gold and a {armor.LeatherChest.itemName}. Nice. ")
@@ -355,82 +331,3 @@ def JobPostings(player):
             print(f"You leave the job posting board")
             input("Press ENTER to continue...")
             GoSomewhere(player)
-
-def ShowDungeonGrid(currentPos, alreadyVisited, roomDict, everyRoom):
-    roomsToPrint = ["[ ]", "[ ]", "[ ]", "[ ]", "[ ]", "[ ]", "[ ]", "[ ]", "[ ]", ]
-    for i in range(len(alreadyVisited)):
-        if len(alreadyVisited) > 0:
-            roomIndex = SearchDictKey(alreadyVisited[i], roomDict)
-            roomsToPrint[int(roomIndex)] = "[X]"
-
-    for i in range(9):
-        if currentPos == roomDict[everyRoom[i]]:
-            roomsToPrint[i] = "[O]"
-
-    for i in range(len(roomsToPrint)):
-        if i == 3 or i == 6:
-            print(f"\n{roomsToPrint[i]}", end=' ')
-        else:
-            print(f"{roomsToPrint[i]}", end=' ')
-
-def AvailableDirections(currentPos, roomDict, everyRoom):
-    DirDict = {
-        "North": False,
-        "South": False,
-        "West": False,
-        "East": False,
-    }
-
-    northPos = introcs.Vector2(currentPos.x, currentPos.y - 1)
-    southPos = introcs.Vector2(currentPos.x, currentPos.y + 1)
-    westPos = introcs.Vector2(currentPos.x - 1, currentPos.y)
-    eastPos = introcs.Vector2(currentPos.x + 1, currentPos.y)
-
-    for i in range(len(everyRoom)):
-
-        if roomDict[everyRoom[i]].x == northPos.x and roomDict[everyRoom[i]].y == northPos.y:
-            DirDict["North"] = True
-
-        elif roomDict[everyRoom[i]].x == southPos.x and roomDict[everyRoom[i]].y == southPos.y:
-            DirDict["South"] = True
-
-        elif roomDict[everyRoom[i]].x == westPos.x and roomDict[everyRoom[i]].y == westPos.y:
-            DirDict["West"] = True
-
-        elif roomDict[everyRoom[i]].x == eastPos.x and roomDict[everyRoom[i]].y == eastPos.y:
-            DirDict["East"] = True
-
-    availableList = []
-    for i in DirDict.keys():
-        if DirDict[i]:
-            availableList.append(i)
-
-    for i, dir in enumerate(availableList, 1):
-        print(f"{i}. {dir}")
-
-    input(f"Type the number of the direction you wish to go forward: ")
-
-def EmbarkOutside(player):
-    dungeonDict = {
-        "0": introcs.Vector2(x=-1, y=-1),
-        "1": introcs.Vector2(x=0, y=-1),
-        "2": introcs.Vector2(x=-1, y=1),
-        "3": introcs.Vector2(x=-1, y=0),
-        "4": introcs.Vector2(x=0, y=0),
-        "5": introcs.Vector2(x=1, y=0),
-        "6": introcs.Vector2(x=-1, y=1),
-        "7": introcs.Vector2(x=0, y=1),
-        "8": introcs.Vector2(x=1, y=1),
-    }
-
-    rooms = ["0", "1", "2", "3", "4", "5", "6", "7", "8"]
-    currentPos = dungeonDict["0"]
-    alreadyVisited = []
-    print("The dungeon is infested with goblins, you can see the blood trail leading into the massive cave structure.")
-    while True:
-        ShowDungeonGrid(currentPos,alreadyVisited,dungeonDict,rooms)
-        
-
-
-        pass
-
