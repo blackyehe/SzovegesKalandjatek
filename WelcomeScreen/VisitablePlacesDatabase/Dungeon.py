@@ -115,7 +115,7 @@ def CombatOptions(player,enemy):
             input("Press Enter to continue...\n")
             enemy.TakeTurn(player)
         case 3:
-            player.ShowPlayerInventory()
+            player.ShowPlayerNormalInventory()
         case 4:
             print("Your cowardly nature gets the better of you, and you try to run for your life.")
             success = roll.DiceRoll(16,player,"dex")

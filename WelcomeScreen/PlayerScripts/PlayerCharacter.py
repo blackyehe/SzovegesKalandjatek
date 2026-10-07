@@ -1,4 +1,4 @@
-﻿from WelcomeScreen.Enums.everyEnum import ArmourTypes
+﻿from WelcomeScreen.Enums.everyEnum import ArmourTypes, ItemTypes
 from WelcomeScreen.VisitablePlacesDatabase.PlacesClass import Places
 from WelcomeScreen.VisitablePlacesDatabase.PlacesDatabase import StarterFountain
 import WelcomeScreen.VisitablePlacesDatabase.PlacesDatabase
@@ -28,6 +28,7 @@ class PlayerCharacter:
         self.NormalInventory = []
         self.Gold = 500
         self.ActiveQuests = []
+
 
     def TakeDamage(self, dmgNumber):
         self.playerCurrentHP -= dmgNumber
@@ -70,6 +71,22 @@ class PlayerCharacter:
             for i,item in enumerate(self.NormalInventory,1):
                 item.itemIndex = i
                 print(f"{item.itemIndex}. [{item.itemName}] [+{item.statNumber} to {item.statToIncrease}]")
+
+            itemChoice = input("Choose an item index you wish to interact with, or X to leave: ")
+
+            if type(itemChoice) is int:
+
+                if self.NormalInventory[itemChoice-1].itemType is ItemTypes.ARMOR or self.NormalInventory[itemChoice-1].itemType is ItemTypes.WEAPON:
+                    print(f"You have equipped: {self.NormalInventory[itemChoice-1].itemName}")
+                    self.NormalInventory[itemChoice-1].OnEquip(self)
+
+                elif self.NormalInventory[itemChoice-1].itemType is ItemTypes.OTHER:
+                    self.NormalInventory[itemChoice-1].DrinkHealingPotion(self)
+
+            elif type(itemChoice) is str:
+                return
+
+
     def PrintCharacterSheet(self):
             print(
                 "\n===========================================================================================================")
